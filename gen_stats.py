@@ -34,16 +34,18 @@ def _row2dictitem(in_row):
     :return: dictionary [field name: value]
     """
 
-    out_dict = {'ID': in_row[:14], 'Item Code': in_row[14:17], 'Amount': in_row[18:32].strip(), 'Survey Year': in_row[32:34],
-                'Year of Data': in_row[34:36], 'Origin': in_row[36:38]}
+    out_dict = {'ID': in_row[:14], 'Item Code': in_row[14:17], 'Amount': int(in_row[18:32].strip()),
+                'Survey Year': in_row[32:34], 'Year of Data': in_row[34:36], 'Origin': in_row[36:38]}
 
     return out_dict
 
 
-def process_state_data(in_file):
+def process_state_data(in_file, state_lu, item_lu):
     """
     Process a state revenue file. Parse all fields into a dictionary
 
+    :param state_lu: state lookup table
+    :param item_lu: item code lookup table
     :param in_file: state revenue file (text)
     :return: data dictionary [field name: value]
     """
@@ -60,9 +62,15 @@ def process_state_data(in_file):
     row_cnt = 1
     for row in st_data_list:
 
-        print len(row)
         # add itemized row data
         out_dict[row_cnt] = _row2dictitem(row)
+
+        # add government name, item code name
+        if out_dict[row_cnt]['ID'] in state_lu.keys():
+            out_dict[row_cnt]['State'] = state_lu[out_dict[row_cnt]['ID']]['State']
+
+        if out_dict[row_cnt]['Item Code'] in item_lu.keys():
+            out_dict[row_cnt]['Item'] = item_lu[out_dict[row_cnt]['Item Code']]['Description']
 
         row_cnt += 1
 
@@ -95,4 +103,4 @@ if __name__ == "__main__":
     gov_itemcode_lookup = build_lookup(gov_itemcode_file, 'Item Code')
 
     # get state data
-    state_data = process_state_data(state_data_file)
+    state_data = process_state_data(state_data_file, gov_id_lookup, gov_itemcode_lookup)
