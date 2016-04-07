@@ -67,7 +67,7 @@ def process_state_data(in_file, state_lu, item_lu):
 
         # add government name, item code name
         if out_dict[row_cnt]['ID'] in state_lu.keys():
-            out_dict[row_cnt]['State'] = state_lu[out_dict[row_cnt]['ID']]['State']
+            out_dict[row_cnt]['State'] = state_lu[out_dict[row_cnt]['ID']]['State'].strip()
 
         if out_dict[row_cnt]['Item Code'] in item_lu.keys():
             out_dict[row_cnt]['Item'] = item_lu[out_dict[row_cnt]['Item Code']]['Description']
