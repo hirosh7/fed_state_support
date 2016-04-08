@@ -35,7 +35,8 @@ def _row2dictitem(in_row):
     """
 
     out_dict = {'ID': in_row[:14], 'Item Code': in_row[14:17], 'Amount': int(in_row[18:32].strip()),
-                'Survey Year': in_row[32:34], 'Year of Data': in_row[34:36], 'Origin': in_row[36:38]}
+                'Survey Year': '20' + in_row[32:34], 'Year of Data': '20' + in_row[34:36],
+                'Origin': in_row[36:38]}
 
     return out_dict
 
@@ -68,9 +69,13 @@ def process_state_data(in_file, state_lu, item_lu):
         # add government name, item code name
         if out_dict[row_cnt]['ID'] in state_lu.keys():
             out_dict[row_cnt]['State'] = state_lu[out_dict[row_cnt]['ID']]['State'].strip()
+        else:
+            out_dict[row_cnt]['State'] = 'No State'
 
         if out_dict[row_cnt]['Item Code'] in item_lu.keys():
             out_dict[row_cnt]['Item'] = item_lu[out_dict[row_cnt]['Item Code']]['Description']
+        else:
+            out_dict[row_cnt]['Item'] = 'Not Found'
 
         row_cnt += 1
 
@@ -91,12 +96,14 @@ def build_lookup(in_file, key_fld):
 
     return csv_dict
 
+
 if __name__ == "__main__":
 
     # data files
     gov_id_file = 'data/government_ids.csv'
     gov_itemcode_file = 'data/itemcodes.csv'
     state_data_file = 'data/13state35.txt'
+    merged_data_file = 'output/merged_state_data.csv'
 
     # set up lookup tables
     gov_id_lookup = build_lookup(gov_id_file, 'ID Code')
@@ -104,3 +111,12 @@ if __name__ == "__main__":
 
     # get state data
     state_data = process_state_data(state_data_file, gov_id_lookup, gov_itemcode_lookup)
+
+    # Put data into a list for output to CSV dictwriter
+    state_data_list = []
+    for data_item in state_data:
+        state_data_list.append(state_data[data_item])
+
+    # write data out to CSV file
+    fieldnames = ('ID', 'State', 'Item Code', 'Item', 'Amount', 'Year of Data', 'Survey Year', 'Origin')
+    csvtools.write_csv_data(merged_data_file, fieldnames, state_data_list)

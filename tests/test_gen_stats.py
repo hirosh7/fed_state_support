@@ -33,3 +33,4 @@ class TestGenStats(TestCase):
         state_data = gen_stats.process_state_data(state_data_file, gov_id_lookup, gov_itemcode_lookup)
         self.assertEqual(state_data[12000]['State'], 'Washington')
         self.assertEqual(state_data[12000]['Item'], 'Construction - Fish & Game')
+        self.assertEqual(state_data[10]['State'], 'No State')
